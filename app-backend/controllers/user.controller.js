@@ -10,13 +10,11 @@ module.exports.registerUser = async (req, res) => {
   }
 
   const { fullname, email, password } = req.body;
-  const { firstname, lastname } = fullname; // Destructure fullname object
+  const { firstname, lastname } = fullname;
 
   try {
-    // Hash the password
     const hashedPassword = await userServices.hashPassword(password);
 
-    // Create the user
     const user = await userServices.createUser({
       fullname: {
         firstname,
@@ -26,7 +24,6 @@ module.exports.registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Generate authentication token (assumes your model has this method)
     const token = user.generateAuthToken();
 
     return res.status(201).json({ token, user });
@@ -36,3 +33,27 @@ module.exports.registerUser = async (req, res) => {
   }
 };
 
+module.exports.loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await userServices.findUserByEmail(email);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = user.generateAuthToken();
+
+    return res.status(200).json({ token, user });
+  } catch (error) {
+    console.error("Error logging in user:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
