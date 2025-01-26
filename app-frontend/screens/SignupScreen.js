@@ -10,6 +10,9 @@ import {
   Platform,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import axios from "axios"; // Import axios
+import { BASE_URL } from "@env";
+
 
 const SignupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -17,33 +20,44 @@ const SignupScreen = ({ navigation }) => {
     lastname: "",
     email: "",
     password: "",
-    
   });
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSignup = () => {
-    const { firstname, lastname, email, password} = formData;
+  const handleSignup = async () => {
+    const { firstname, lastname, email, password } = formData;
 
     // Combine fullname
     const fullname = `${firstname} ${lastname}`.trim();
 
     // Validation
-    if (!firstname || !lastname || !email || !password ) {
+    if (!firstname || !lastname || !email || !password) {
       Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-    // Log fullname for demo (replace this with your required logic)
-    console.log({
-      fullname,
-      email,
-      password,
-    });
 
-    Toast.show({ type: "success", text1: "Signup Successful" });
-    navigation.navigate("Login");
+    try {
+      // Make API call to backend to register user
+      const response = await axios.post(`${BASE_URL}/user/register`, {
+        fullname,
+        email,
+        password,
+      });
+
+      // Check if the response contains token and user
+      if (response.data.token && response.data.user) {
+        Toast.show({ type: "success", text1: "Signup Successful" });
+        // Navigate to login screen
+        navigation.navigate("Login");
+      } else {
+        Toast.show({ type: "error", text1: "Signup failed. Please try again." });
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      Toast.show({ type: "error", text1: "Signup failed. Please try again." });
+    }
   };
 
   const { firstname, lastname, email, password } = formData;
