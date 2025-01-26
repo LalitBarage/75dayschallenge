@@ -8,18 +8,31 @@ module.exports.registerUser = async (req, res) => {
       message: errors.array(),
     });
   }
-  const { firstname, lastname, email, password } = req.body;
 
-  const hashedPassword = await userServices.hashPassword(password);
+  const { fullname, email, password } = req.body;
+  const { firstname, lastname } = fullname; // Destructure fullname object
 
-  const user = await userServices.createUser({
-    firstname,
-    lastname,
-    email,
-    password: hashedPassword,
-  });
+  try {
+    // Hash the password
+    const hashedPassword = await userServices.hashPassword(password);
 
-  const token = user.generateAuthToken();
+    // Create the user
+    const user = await userServices.createUser({
+      fullname: {
+        firstname,
+        lastname,
+      },
+      email,
+      password: hashedPassword,
+    });
 
-  return res.status(201).json(token, user);
+    // Generate authentication token (assumes your model has this method)
+    const token = user.generateAuthToken();
+
+    return res.status(201).json({ token, user });
+  } catch (error) {
+    console.error("Error registering user:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
 };
+
