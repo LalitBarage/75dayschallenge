@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import axios from "axios";
+import { BASE_URL } from "@env";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }) {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -20,8 +23,41 @@ export default function LoginScreen({ navigation }) {
     setCredentials((prev) => ({ ...prev, [name]: value }));
 
   const handleLogin = async () => {
-    navigation.navigate("Home", { loginSuccess: true });
+    const { email, password } = credentials;
+  
+    if (!email || !password) {
+      Toast.show({ type: "error", text1: "Please fill in all fields" });
+      return;
+    }
+  
+    try {
+      const response = await axios.post(`${BASE_URL}/user/login`, {
+        email,
+        password,
+      });
+  
+      if (response.data.success || response.data.token) {
+        Toast.show({ type: "success", text1: "Login Successful" });
+  
+        // Save login state or token to AsyncStorage
+        await AsyncStorage.setItem('userToken', response.data.token || 'loggedIn');
+  
+        // Navigate to Home screen
+        navigation.navigate("Home", { loginSuccess: true });
+      } else {
+        Toast.show({ type: "error", text1: "Invalid email or password" });
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      Toast.show({
+        type: "error",
+        text1: "Login failed. Please try again.",
+        text2: error.response?.data?.message || "An unexpected error occurred",
+      });
+    }
   };
+  
+  
 
   return (
     <KeyboardAvoidingView

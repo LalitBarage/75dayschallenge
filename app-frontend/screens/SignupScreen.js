@@ -28,24 +28,24 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     const { firstname, lastname, email, password } = formData;
-
-    // Combine fullname
-    const fullname = `${firstname} ${lastname}`.trim();
-
+  
     // Validation
     if (!firstname || !lastname || !email || !password) {
       Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-
+  
     try {
       // Make API call to backend to register user
       const response = await axios.post(`${BASE_URL}/user/register`, {
-        fullname,
+        fullname: {
+          firstname,
+          lastname,
+        },
         email,
         password,
       });
-
+  
       // Check if the response contains token and user
       if (response.data.token && response.data.user) {
         Toast.show({ type: "success", text1: "Signup Successful" });
@@ -59,6 +59,7 @@ const SignupScreen = ({ navigation }) => {
       Toast.show({ type: "error", text1: "Signup failed. Please try again." });
     }
   };
+  
 
   const { firstname, lastname, email, password } = formData;
 
