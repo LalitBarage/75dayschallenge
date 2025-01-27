@@ -13,7 +13,6 @@ import {
 import Toast from "react-native-toast-message";
 import axios from "axios";
 
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }) {
@@ -24,24 +23,30 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     const { email, password } = credentials;
-  
+
     if (!email || !password) {
       Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-  
+
     try {
-      const response = await axios.post(`http://192.168.55.106:4000/user/login`, {
-        email,
-        password,
-      });
-  
+      const response = await axios.post(
+        `http://192.168.31.13:4000/user/login`,
+        {
+          email,
+          password,
+        }
+      );
+
       if (response.data.success || response.data.token) {
         Toast.show({ type: "success", text1: "Login Successful" });
-  
+
         // Save login state or token to AsyncStorage
-        await AsyncStorage.setItem('userToken', response.data.token || 'loggedIn');
-  
+        await AsyncStorage.setItem(
+          "userToken",
+          response.data.token || "loggedIn"
+        );
+
         // Navigate to Home screen
         navigation.navigate("Home", { loginSuccess: true });
       } else {
@@ -56,8 +61,6 @@ export default function LoginScreen({ navigation }) {
       });
     }
   };
-  
-  
 
   return (
     <KeyboardAvoidingView

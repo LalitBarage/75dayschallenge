@@ -12,8 +12,6 @@ import {
 import Toast from "react-native-toast-message";
 import axios from "axios"; // Import axios
 
-
-
 const SignupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
     firstname: "",
@@ -28,39 +26,43 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     const { firstname, lastname, email, password } = formData;
-  
+
     // Validation
     if (!firstname || !lastname || !email || !password) {
       Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-  
+
     try {
-      
       // Make API call to backend to register user
-      const response = await axios.post(`http://192.168.55.106:4000/user/register`, {
-        fullname: {
-          firstname,
-          lastname,
-        },
-        email,
-        password,
-      });
-  
+      const response = await axios.post(
+        `http://192.168.31.13:4000/user/register`,
+        {
+          fullname: {
+            firstname,
+            lastname,
+          },
+          email,
+          password,
+        }
+      );
+
       // Check if the response contains token and user
       if (response.data.token && response.data.user) {
         Toast.show({ type: "success", text1: "Signup Successful" });
         // Navigate to login screen
         navigation.navigate("Login");
       } else {
-        Toast.show({ type: "error", text1: "Signup failed. Please try again." });
+        Toast.show({
+          type: "error",
+          text1: "Signup failed. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Error during signup:", error);
       Toast.show({ type: "error", text1: "Signup failed. Please try again." });
     }
   };
-  
 
   const { firstname, lastname, email, password } = formData;
 
