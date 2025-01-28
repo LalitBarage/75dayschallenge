@@ -38,7 +38,7 @@ module.exports.updateTasks = async (userId) => {
           "tasks.task5": true,
           lastUpdatedDate: Date.now(),
         },
-        $inc: { streak: 1 }, // Increment streak by 1
+        $inc: { streak: 1 }, // Increment streak by 1 only for the specific user
       },
       { new: true } // Return the updated document
     );
@@ -48,6 +48,8 @@ module.exports.updateTasks = async (userId) => {
       throw new Error("User not found");
     }
 
+    // Optionally log or return the updated user
+    console.log("User updated:", updatedUser);
     return updatedUser;
   } catch (error) {
     throw new Error("Error updating tasks: " + error.message);
