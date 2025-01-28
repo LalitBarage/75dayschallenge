@@ -6,26 +6,26 @@ const userSchema = new mongoose.Schema({
   fullname: {
     firstname: {
       type: String,
-      // required: true,
+      required: true,
       trim: true,
       minlength: [3, "First name must be at least 3 characters long"],
     },
     lastname: {
       type: String,
-      // required: true,
+      required: true,
       trim: true,
       minlength: [3, "Last name must be at least 3 characters long"],
     },
   },
   email: {
     type: String,
-    // required: true,
+    required: true,
     trim: true,
     unique: true,
   },
   password: {
     type: String,
-    // required: true,
+    required: true,
     trim: true,
     select: false,
   },
@@ -36,6 +36,28 @@ const userSchema = new mongoose.Schema({
   streak: {
     type: Number,
     default: 0,
+  },
+  tasks: {
+    task1: {
+      type: Boolean,
+      default: false,
+    },
+    task2: {
+      type: Boolean,
+      default: false,
+    },
+    task3: {
+      type: Boolean,
+      default: false,
+    },
+    task4: {
+      type: Boolean,
+      default: false,
+    },
+    task5: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 
@@ -49,9 +71,6 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
-
-
 
 userSchema.methods.hashPassword = async function (password) {
   this.password = await bcrypt.hash(password, 10);
