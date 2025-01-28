@@ -5,6 +5,7 @@ const cors = require("cors");
 const app = express();
 const connectToDb = require("./db/db");
 const userRouter = require("./routes/user.route");
+require("./corn");
 
 connectToDb();
 

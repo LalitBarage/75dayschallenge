@@ -1,4 +1,4 @@
-const userServices = require("../services/user.service");
+const userService = require("../services/user.service");
 const { validationResult } = require("express-validator");
 
 module.exports.registerUser = async (req, res) => {
@@ -15,7 +15,7 @@ module.exports.registerUser = async (req, res) => {
   try {
     const hashedPassword = await userServices.hashPassword(password);
 
-    const user = await userServices.createUser({
+    const user = await userService.createUser({
       fullname: {
         firstname,
         lastname,
@@ -37,7 +37,7 @@ module.exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await userServices.findUserByEmail(email);
+    const user = await userService.findUserByEmail(email);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -63,5 +63,22 @@ module.exports.getUserProfile = async (req, res) => {
     res.status(200).json(req.user);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+module.exports.updateTask = async (req, res) => {
+  try {
+    const userId = req.user._id; // Assuming the user ID is passed via authentication (JWT)
+
+    // Call the service layer to update tasks
+    const updatedUser = await userService.updateTasks(userId);
+
+    res.status(200).send({
+      message: "Tasks updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message });
   }
 };
