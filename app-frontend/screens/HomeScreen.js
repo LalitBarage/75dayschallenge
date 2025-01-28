@@ -1,19 +1,76 @@
-import React, { useState } from "react";
+ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Progress from "react-native-progress";
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
 
 export default function HomeScreen({ navigation }) {
   const [daysCompleted, setDaysCompleted] = useState(45);
   const totalDays = 75;
 
   const progress = daysCompleted / totalDays;
+
+  useEffect(() => {
+    requestNotificationPermission();
+    scheduleWaterNotification(); // Schedule a notification on load
+
+    // Set up a listener for notification responses
+    const notificationListener = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log("Notification Received:", notification);
+      }
+    );
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log("Notification Response:", response);
+      }
+    );
+
+    // Cleanup listeners on unmount
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  }, []);
+
+  // Request Notification Permissions
+  const requestNotificationPermission = async () => {
+    const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    if (status !== "granted") {
+      const { status: newStatus } = await Permissions.askAsync(
+        Permissions.NOTIFICATIONS
+      );
+      if (newStatus !== "granted") {
+        Alert.alert("Permission Required", "Notifications are disabled.");
+      }
+    }
+  };
+
+  // Schedule Notification for Drinking Water
+  const scheduleWaterNotification = async () => {
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Hydration Reminder 💧",
+        body: "Time to drink water and stay hydrated!",
+        sound: true,
+      },
+      trigger: {
+        seconds: 60, // 1 hour interval (adjust as needed)
+        repeats: true, // Repeat notification
+      },
+    });
+
+    console.log("Notification Scheduled with ID:", notificationId);
+  };
 
   return (
     <View style={styles.container}>
@@ -183,3 +240,4 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
 });
+
