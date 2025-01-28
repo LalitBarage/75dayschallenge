@@ -48,7 +48,7 @@ export default function LoginScreen({ navigation }) {
         );
 
         // Navigate to Home screen
-        navigation.navigate("Home", { loginSuccess: true });
+        navigation.replace("Home", { loginSuccess: true });
       } else {
         Toast.show({ type: "error", text1: "Invalid email or password" });
       }
