@@ -59,12 +59,14 @@ const userSchema = new mongoose.Schema({
       default: false,
     },
   },
+  lastUpdatedDate: {
+    type: Date,
+    default: null,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {
-  const token = jsonwebtoken.sign({ _id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  const token = jsonwebtoken.sign({ _id: this._id }, process.env.JWT_SECRET);
   return token;
 };
 
