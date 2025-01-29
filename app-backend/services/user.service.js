@@ -26,6 +26,21 @@ module.exports.findUserByEmail = async (email) => {
 
 module.exports.updateTasks = async (userId) => {
   try {
+    // Fetch the user to check the last updated date
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Convert both dates to "YYYY-MM-DD" format for comparison
+    const lastUpdatedDate = new Date(user.lastUpdatedDate).toISOString().split("T")[0];
+    const currentDate = new Date().toISOString().split("T")[0];
+
+    if (lastUpdatedDate === currentDate) {
+      throw new Error("You can't complete the tasks more than once per day.");
+    }
+
     // Update the task statuses to true, increment streak, and set the last updated date
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
@@ -38,17 +53,11 @@ module.exports.updateTasks = async (userId) => {
           "tasks.task5": true,
           lastUpdatedDate: Date.now(),
         },
-        $inc: { streak: 1 }, // Increment streak by 1 only for the specific user
+        $inc: { streak: 1 }, // Increment streak by 1
       },
       { new: true } // Return the updated document
     );
 
-    // If the user is not found, throw an error
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
-
-    // Optionally log or return the updated user
     console.log("User updated:", updatedUser);
     return updatedUser;
   } catch (error) {

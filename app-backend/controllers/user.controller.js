@@ -13,7 +13,7 @@ module.exports.registerUser = async (req, res) => {
   const { firstname, lastname } = fullname;
 
   try {
-    const hashedPassword = await userServices.hashPassword(password);
+    const hashedPassword = await userService.hashPassword(password);
 
     const user = await userService.createUser({
       fullname: {

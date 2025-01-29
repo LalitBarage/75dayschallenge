@@ -23,8 +23,8 @@ router.post(
 
 router.post("/login", userController.loginUser);
 
-router.post("/profile", authMiddleware.authUser, userController.getUserProfile);
+router.get("/profile", authMiddleware.authUser, userController.getUserProfile);
 
-router.post("/updateTask", authMiddleware.authUser, userController.updateTask);
+router.put("/updateTask", authMiddleware.authUser, userController.updateTask);
 
 module.exports = router;
